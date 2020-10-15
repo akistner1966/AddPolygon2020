@@ -16,7 +16,7 @@ class linie(object):
         else:
             return((self.ya - self.ye)/(self.xa - self.xe))
         
-    def xlcheck(self, _x2a, _y2a, _x2e, _y2e):
+    def lne_x_chk(self, _x2a, _y2a, _x2e, _y2e):
         """
         Quelle: https://de.wikipedia.org/wiki/Schnittpunkt
         Gerade 1: wurde in __init__ definiert
@@ -29,6 +29,9 @@ class linie(object):
         -1 unendlich viele Schnittpunkte (identische Geraden)
         <xs> x-Koordintate des Schnittpunkts
         <ys> y-Koordintate des Schnittpunkts
+        für den Schnittpunkt ist es unwichtig, ob sich dieser innerhalb
+        der Grenzen der Geraden (_x2a, _y2a, _x2e, _y2e) und
+        (self.xa, self.ya, self.xe, self.ye) befindet oder nicht.
         """
         dx1 = self.xe - self.xa
         dy1 = self.ye - self.ya
@@ -78,6 +81,51 @@ class linie(object):
                     xs = ys = 0
                     crosscheck = 0
         return(crosscheck, xs, ys)
+
+    def seg_x_chk(self, _x2a, _y2a, _x2e, _y2e):
+        """
+        Quelle: https://de.wikipedia.org/wiki/Schnittpunkt
+        Gerade 1: wurde in __init__ definiert
+        Gerade 2: <_x2a>, <_y2a> - <_x2e>, <_y2e>
+    
+        Rückgabewerte:
+        <crosscheck>
+        1 genau ein Schnittpunkt
+        0 kein Schnittpunkt (parallele, nicht identische Geraden)
+        -1 unendlich viele Schnittpunkte (identische Geraden)
+        -2 Schnittpunkt vorhanden, aber nicht innerhalb der Grenzen der
+        Geraden
+        <xs> x-Koordintate des Schnittpunkts
+        <ys> y-Koordintate des Schnittpunkts
+        Ein Schnittpunkt wird nur ausgegeben, wenn der sich Schnittpunkt 
+        innerhalb der Grenzen der Geraden (_x2a, _y2a, _x2e, _y2e) und
+        (self.xa, self.ya, self.xe, self.ye) befindet.
+        """
+        xcheck, xc, yc = self.lne_x_chk(self, _x2a, _y2a, _x2e, _y2e)
+        if _x2e != _x2a: #Allgemeinfall: keine senkrechte Linie
+            lambda1_1 = (xc - _x2a)/(_x2e - _x2a)
+        else:
+            lamdba1_1 = 0.5
+        if _y2e != _y2a: #Allgemeinfall: keine waagerechte Linie
+            lambda1_2 = (yc - _y2a)/(_y2e - _y2a)
+        else:
+            lamdba1_2 = 0.5
+        if self.xe != self.xa: #Allgemeinfall: keine senkrechte Linie
+            lambda2_1 = (xc - self.xa)/(self.xe - self.xa)
+        else:
+            lamdba2_1 = 0.5
+        if self.ye != self.ya: #Allgemeinfall: keine senkrechte Linie
+            lambda2_2 = (yc - self.ya)/(self.ye - self.ya)
+        else:
+            lamdba2_2 = 0.5
+        flg1_1 = (lambda1_1 >= 0) and (lambda1_1 <= 1)
+        flg1_2 = (lambda1_2 >= 0) and (lambda1_2 <= 1)
+        flg2_1 = (lambda2_1 >= 0) and (lambda2_1 <= 1)
+        flg2_2 = (lambda2_2 >= 0) and (lambda2_2 <= 1)
+        if flg1_1 and flg1_2 and flg2_1 and flg2_2:
+            return(xcheck, xc, y)
+        else:
+            return(-2, 0, 0)
 
 class poly(object):
     def __init__(self, xlist, ylist):
@@ -144,8 +192,35 @@ class poly(object):
         """
         pass
 
+def polytest(xli, yli):
+    if len(xli) == len(yli):
+        p = poly(xli, yli)
+        ausstr = 'Polygon: '
+        for cnt, ele in enumerate(xlst, 0):
+            ausstr += '(' + str(xli[cnt]) + ',' + str(yli[cnt]) + ')'
+        print(ausstr)
+        print('Kantenlänge gesamt: ' + str(p.klaenge()))
+        print('Fläche: ' +str(p.flaeche()))
+    else:
+        print('fehlerhaftes Polygon!')
+
+def linetest(x11, y11, x12, y12, x21, y21, x22, y22):
+    lgrund = linie(x11, y11, x12, y12)
+    (xc_ger, xs_ger, ys_ger) = lgrund.lne_x_chk(x21, y21, x22, y22)
+    (xc_seg, xs_seg, ys_seg) = lgrund.seg_x_chk(x21, y21, x22, y22)
+
+#erste Figur: Quadrat mit den Kanten
+#(0,0)=>(1,0)=>(1,1)=>(0,1)
 xlst = [0, 1, 1, 0]
 ylst = [0, 0, 1, 1]
-p = poly(xlst, ylst)
-print(p.klaenge())
-print(p.flaeche())
+polytest(xlst, ylst)
+#zweite Figur: Kanten
+#(0,0)=>(1,1)=>(1,0)=>(0,1)
+#Zwei Kanten kreuzen sich
+xlst = [0, 1, 1, 0]
+ylst = [0, 1, 0, 1]
+polytest(xlst, ylst)
+#dritte Figur: zwei Geraden
+#(0,0)=>(1,1) und (0,1)=>(1,0)
+#vierte Figur: zwei Geraden
+#(0,0)=>(1,1) und (2,2)=>(3,1)
