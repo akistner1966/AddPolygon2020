@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 #@author: comet
 
+import math
+
 class linie(object):
     def __init__(self, xa, ya, xe, ye):
         self.xa = xa
@@ -77,3 +79,59 @@ class linie(object):
                     crosscheck = 0
         return(crosscheck, xs, ys)
 
+class poly(object):
+    def __init__(self, xlist, ylist):
+        """
+        Übergabeparameter:
+        <xlist>: x-Koordinaten der Ecken
+        <ylist>: y-Koordinaten der Ecken
+        Rückgabewert:
+        False: Definition des Polygons was nicht erfolgreich
+        True: Definition des Polygons was erfolgreich
+        """
+        if len(xlist) != len(ylist):
+            self.OK = False
+        else:
+            self.xl = xlist
+            self.yl = ylist
+            self.xl.append(self.xl[0]) #Polygon schließen (x-Koordinate)
+            self.yl.append(self.yl[0]) #Polygon schließen (y-Koordinate)
+            self.OK = True
+
+    def klaenge(self):
+        """
+        berechnet die Kantenlänge des Polygons
+        """
+        umfang = 0
+        for cnt, ele in enumerate(self.xl, 0):
+            if cnt > 0:
+                umfang += math.sqrt((self.xl[cnt] - self.xl[cnt - 1])**2 + \
+                    (self.yl[cnt] - self.yl[cnt - 1])**2)
+        return(umfang)
+
+
+    def xcheck(self):
+        """
+        Prüfung, ob sich zwei oder mehrere Teilstrecken des Polygons
+        kreuzen. Rückgabewert ist die Anzahl der Kreuzungspunkte.
+        """
+        for cnt1, ele1 in enumerate(self.xl, 0):
+            for cnt2, ele2 in enumerate(self.xl, 0):
+                if cnt1 != cnt2:
+                    pass
+
+    def flaeche(self):
+        """
+        berechnet den Flächeninhalt des Polygons
+        """
+        pass
+
+    def inside(self, px, py):
+        """
+        """
+        pass
+
+xlst = [0, 1, 1, 0]
+ylst = [0, 0, 1, 1]
+p = poly(xlst, ylst)
+print(p.klaenge())
