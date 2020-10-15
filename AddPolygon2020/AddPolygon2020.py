@@ -124,7 +124,20 @@ class poly(object):
         """
         berechnet den Flächeninhalt des Polygons
         """
-        pass
+        ymin = self.yl[0]
+        for ele in self.yl:
+            ymin = min(ymin, ele)
+        flaeche = 0
+        for cnt, ele in enumerate(self.xl, 0):
+            if cnt > 0:
+                delta = (self.xl[cnt] - self.xl[cnt - 1])*\
+                    ((self.yl[cnt] + self.yl[cnt - 1])/2 - ymin)
+                if self.xl[cnt - 1] > self.xl[cnt]: #positiver Flächenzuwachs
+                    flaeche += delta
+                else: #negativer Flächenzuwachs
+                    flaeche -= delta
+        return(abs(flaeche))
+
 
     def inside(self, px, py):
         """
@@ -135,3 +148,4 @@ xlst = [0, 1, 1, 0]
 ylst = [0, 0, 1, 1]
 p = poly(xlst, ylst)
 print(p.klaenge())
+print(p.flaeche())
