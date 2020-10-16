@@ -101,29 +101,29 @@ class linie(object):
         innerhalb der Grenzen der Geraden (_x2a, _y2a, _x2e, _y2e) und
         (self.xa, self.ya, self.xe, self.ye) befindet.
         """
-        xcheck, xc, yc = self.lne_x_chk(self, _x2a, _y2a, _x2e, _y2e)
+        xcheck, xc, yc = self.lne_x_chk(_x2a, _y2a, _x2e, _y2e)
         if _x2e != _x2a: #Allgemeinfall: keine senkrechte Linie
             lambda1_1 = (xc - _x2a)/(_x2e - _x2a)
         else:
-            lamdba1_1 = 0.5
+            lambda1_1 = 0.5
         if _y2e != _y2a: #Allgemeinfall: keine waagerechte Linie
             lambda1_2 = (yc - _y2a)/(_y2e - _y2a)
         else:
-            lamdba1_2 = 0.5
+            lambda1_2 = 0.5
         if self.xe != self.xa: #Allgemeinfall: keine senkrechte Linie
             lambda2_1 = (xc - self.xa)/(self.xe - self.xa)
         else:
-            lamdba2_1 = 0.5
+            lambda2_1 = 0.5
         if self.ye != self.ya: #Allgemeinfall: keine senkrechte Linie
             lambda2_2 = (yc - self.ya)/(self.ye - self.ya)
         else:
-            lamdba2_2 = 0.5
+            lambda2_2 = 0.5
         flg1_1 = (lambda1_1 >= 0) and (lambda1_1 <= 1)
         flg1_2 = (lambda1_2 >= 0) and (lambda1_2 <= 1)
         flg2_1 = (lambda2_1 >= 0) and (lambda2_1 <= 1)
         flg2_2 = (lambda2_2 >= 0) and (lambda2_2 <= 1)
         if flg1_1 and flg1_2 and flg2_1 and flg2_2:
-            return(xcheck, xc, y)
+            return(xcheck, xc, yc)
         else:
             return(-2, 0, 0)
 
@@ -163,10 +163,18 @@ class poly(object):
         Prüfung, ob sich zwei oder mehrere Teilstrecken des Polygons
         kreuzen. Rückgabewert ist die Anzahl der Kreuzungspunkte.
         """
+        anzsp = 0
         for cnt1, ele1 in enumerate(self.xl, 0):
             for cnt2, ele2 in enumerate(self.xl, 0):
-                if cnt1 != cnt2:
-                    pass
+                if (cnt1 != cnt2) and (cnt1 > 0) and (cnt2 > 0):
+                    l1 = linie(self.xl[cnt1 - 1], self.yl[cnt1 - 1],
+                               self.xl[cnt1], self.yl[cnt1])
+                    (xc_seg, xs_seg, ys_seg) = \
+                        l1.seg_x_chk(self.xl[cnt2 - 1], self.yl[cnt2 - 1],
+                                     self.xl[cnt2], self.yl[cnt2])
+                    if (xc_seg == 0) or (xc_seg == -2):
+                        anzsp += 1
+        return(anzsp)
 
     def flaeche(self):
         """
@@ -201,13 +209,30 @@ def polytest(xli, yli):
         print(ausstr)
         print('Kantenlänge gesamt: ' + str(p.klaenge()))
         print('Fläche: ' +str(p.flaeche()))
+        print('Anzahl Kreuzungspunkte: ' +str(p.xcheck()) + '\n')
     else:
-        print('fehlerhaftes Polygon!')
+        print('fehlerhaftes Polygon!\n')
 
 def linetest(x11, y11, x12, y12, x21, y21, x22, y22):
     lgrund = linie(x11, y11, x12, y12)
     (xc_ger, xs_ger, ys_ger) = lgrund.lne_x_chk(x21, y21, x22, y22)
     (xc_seg, xs_seg, ys_seg) = lgrund.seg_x_chk(x21, y21, x22, y22)
+    ausstr = 'Linien: '
+    ausstr += '(' + str(x11) + ',' + str(y11) + ')-('
+    ausstr += str(x12) + ',' + str(y12) + ') und '
+    ausstr += '(' + str(x21) + ',' + str(y21) + ')-('
+    ausstr += str(x22) + ',' + str(y22) + ')\n'
+    if xc_ger == 1: #ein Kreuzungspunkt
+        ausstr += 'Kreuzungspunkt der Geraden: '
+        ausstr += str(xs_ger) + ',' + str(ys_ger)
+        ausstr += '\nKreuzungspunkt der Segmente: '
+        ausstr += str(xs_seg) + ',' + str(ys_seg)
+    elif xc_ger == 0: #Parallele Geraden => kein Kreuzungspunkt
+        ausstr += 'Kein Kreuzungspunkt. Nicht parallele, nicht'
+        ausstr += ' identische Geraden'
+    else: #identische Geraden => unendlich viele Kreuzungspunkte
+        ausstr += 'Unendliche viele Kreuzungspunkte, identische Geraden'
+    print(ausstr + '\n')
 
 #erste Figur: Quadrat mit den Kanten
 #(0,0)=>(1,0)=>(1,1)=>(0,1)
@@ -222,5 +247,7 @@ ylst = [0, 1, 0, 1]
 polytest(xlst, ylst)
 #dritte Figur: zwei Geraden
 #(0,0)=>(1,1) und (0,1)=>(1,0)
+linetest(0, 0, 1, 1, 0, 1, 1, 0)
 #vierte Figur: zwei Geraden
 #(0,0)=>(1,1) und (2,2)=>(3,1)
+linetest(0, 0, 1, 1, 2, 2, 3, 1)
