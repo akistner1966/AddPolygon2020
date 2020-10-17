@@ -48,9 +48,13 @@ class linie(object):
             ys = zy/ny
             dxs = xs - self.xa
             dys = ys - self.ya
-            if dxs == 0: #senkrechte Gerade => alternativer Check
+            if (dxs == 0) and (dys == 0): #Schnittpunkt = Endpunkt
+                lbda = 0
+            elif (dxs == 0) and (dys != 0): #Senkrechte Gerade
                 lbda = dys/dy1
-            else:
+            elif (dxs != 0) and (dys == 0): #Waagerechte Gerade
+                lbda = dxs/dx1
+            else: #Allgemeinster Fall
                 lbda = dxs/dx1
             if (lbda >=0) and (lbda <= 1):
                 crosscheck = True
@@ -81,51 +85,6 @@ class linie(object):
                     xs = ys = 0
                     crosscheck = 0
         return(crosscheck, xs, ys)
-
-    def seg_x_chk(self, _x2a, _y2a, _x2e, _y2e):
-        """
-        Quelle: https://de.wikipedia.org/wiki/Schnittpunkt
-        Gerade 1: wurde in __init__ definiert
-        Gerade 2: <_x2a>, <_y2a> - <_x2e>, <_y2e>
-    
-        Rückgabewerte:
-        <crosscheck>
-        1 genau ein Schnittpunkt
-        0 kein Schnittpunkt (parallele, nicht identische Geraden)
-        -1 unendlich viele Schnittpunkte (identische Geraden)
-        -2 Schnittpunkt vorhanden, aber nicht innerhalb der Grenzen der
-        Geraden
-        <xs> x-Koordintate des Schnittpunkts
-        <ys> y-Koordintate des Schnittpunkts
-        Ein Schnittpunkt wird nur ausgegeben, wenn der sich Schnittpunkt 
-        innerhalb der Grenzen der Geraden (_x2a, _y2a, _x2e, _y2e) und
-        (self.xa, self.ya, self.xe, self.ye) befindet.
-        """
-        xcheck, xc, yc = self.lne_x_chk(_x2a, _y2a, _x2e, _y2e)
-        if _x2e != _x2a: #Allgemeinfall: keine senkrechte Linie
-            lambda1_1 = (xc - _x2a)/(_x2e - _x2a)
-        else:
-            lambda1_1 = 0.5
-        if _y2e != _y2a: #Allgemeinfall: keine waagerechte Linie
-            lambda1_2 = (yc - _y2a)/(_y2e - _y2a)
-        else:
-            lambda1_2 = 0.5
-        if self.xe != self.xa: #Allgemeinfall: keine senkrechte Linie
-            lambda2_1 = (xc - self.xa)/(self.xe - self.xa)
-        else:
-            lambda2_1 = 0.5
-        if self.ye != self.ya: #Allgemeinfall: keine senkrechte Linie
-            lambda2_2 = (yc - self.ya)/(self.ye - self.ya)
-        else:
-            lambda2_2 = 0.5
-        flg1_1 = (lambda1_1 >= 0) and (lambda1_1 <= 1)
-        flg1_2 = (lambda1_2 >= 0) and (lambda1_2 <= 1)
-        flg2_1 = (lambda2_1 >= 0) and (lambda2_1 <= 1)
-        flg2_2 = (lambda2_2 >= 0) and (lambda2_2 <= 1)
-        if flg1_1 and flg1_2 and flg2_1 and flg2_2:
-            return(xcheck, xc, yc)
-        else:
-            return(-2, 0, 0)
 
 class poly(object):
     def __init__(self, xlist, ylist):
@@ -163,18 +122,10 @@ class poly(object):
         Prüfung, ob sich zwei oder mehrere Teilstrecken des Polygons
         kreuzen. Rückgabewert ist die Anzahl der Kreuzungspunkte.
         """
-        anzsp = 0
         for cnt1, ele1 in enumerate(self.xl, 0):
             for cnt2, ele2 in enumerate(self.xl, 0):
-                if (cnt1 != cnt2) and (cnt1 > 0) and (cnt2 > 0):
-                    l1 = linie(self.xl[cnt1 - 1], self.yl[cnt1 - 1],
-                               self.xl[cnt1], self.yl[cnt1])
-                    (xc_seg, xs_seg, ys_seg) = \
-                        l1.seg_x_chk(self.xl[cnt2 - 1], self.yl[cnt2 - 1],
-                                     self.xl[cnt2], self.yl[cnt2])
-                    if (xc_seg == 0) or (xc_seg == -2):
-                        anzsp += 1
-        return(anzsp)
+                if cnt1 != cnt2:
+                    pass
 
     def flaeche(self):
         """
@@ -209,24 +160,21 @@ def polytest(xli, yli):
         print(ausstr)
         print('Kantenlänge gesamt: ' + str(p.klaenge()))
         print('Fläche: ' +str(p.flaeche()))
-        print('Anzahl Kreuzungspunkte: ' +str(p.xcheck()) + '\n')
     else:
-        print('fehlerhaftes Polygon!\n')
+        print('fehlerhaftes Polygon!')
+
 
 def linetest(x11, y11, x12, y12, x21, y21, x22, y22):
     lgrund = linie(x11, y11, x12, y12)
     (xc_ger, xs_ger, ys_ger) = lgrund.lne_x_chk(x21, y21, x22, y22)
-    (xc_seg, xs_seg, ys_seg) = lgrund.seg_x_chk(x21, y21, x22, y22)
     ausstr = 'Linien: '
     ausstr += '(' + str(x11) + ',' + str(y11) + ')-('
     ausstr += str(x12) + ',' + str(y12) + ') und '
     ausstr += '(' + str(x21) + ',' + str(y21) + ')-('
     ausstr += str(x22) + ',' + str(y22) + ')\n'
     if xc_ger == 1: #ein Kreuzungspunkt
-        ausstr += 'Kreuzungspunkt der Geraden: '
+        ausstr += 'Kreuzungspunkt der Geradenstücke: '
         ausstr += str(xs_ger) + ',' + str(ys_ger)
-        ausstr += '\nKreuzungspunkt der Segmente: '
-        ausstr += str(xs_seg) + ',' + str(ys_seg)
     elif xc_ger == 0: #Parallele Geraden => kein Kreuzungspunkt
         ausstr += 'Kein Kreuzungspunkt. Nicht parallele, nicht'
         ausstr += ' identische Geraden'
@@ -234,20 +182,6 @@ def linetest(x11, y11, x12, y12, x21, y21, x22, y22):
         ausstr += 'Unendliche viele Kreuzungspunkte, identische Geraden'
     print(ausstr + '\n')
 
-#erste Figur: Quadrat mit den Kanten
-#(0,0)=>(1,0)=>(1,1)=>(0,1)
-xlst = [0, 1, 1, 0]
-ylst = [0, 0, 1, 1]
-polytest(xlst, ylst)
-#zweite Figur: Kanten
-#(0,0)=>(1,1)=>(1,0)=>(0,1)
-#Zwei Kanten kreuzen sich
-xlst = [0, 1, 1, 0]
-ylst = [0, 1, 0, 1]
-polytest(xlst, ylst)
-#dritte Figur: zwei Geraden
-#(0,0)=>(1,1) und (0,1)=>(1,0)
-linetest(0, 0, 1, 1, 0, 1, 1, 0)
-#vierte Figur: zwei Geraden
-#(0,0)=>(1,1) und (2,2)=>(3,1)
 linetest(0, 0, 1, 1, 2, 2, 3, 1)
+linetest(0, 0, 1, 1, 0, 1, 1, 0)
+linetest(0, 0, 1, 0, 0, 1, 0, 0)
