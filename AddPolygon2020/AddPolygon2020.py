@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 #@author: comet
 
@@ -148,8 +149,35 @@ class poly(object):
 
     def inside(self, px, py):
         """
+        berechnet, ob 
+        ich ein Punkt im Polygon befindet oder außerhalb
+        Rückgabewert:
+        True: der Punkt ist innerhalb des Polygons
+        False: der Punkt ist außerhalb des Polygons
         """
-        pass
+        self.pxanf = px
+        self.pyanf = py
+        minx = maxx = self.xl[0]
+        for ele in self.xl:
+            minx = min(maxx, ele)
+            maxx = max(maxx, ele)
+        if self.px > maxx:
+            self.xend = minx - (maxx - minx) * 1.1
+        else:
+            self.xend = maxx + (maxx - minx) * 1.1
+        self.yend = self.pyanf
+        crossanz = 0
+        lref = linie(self.xanf, self.yanf, self.xend, self.yend)
+        for cnt, ele in enumerate(self.xl, 0):
+            if cnt > 0:
+                xc_erg = lref.lne_x_chk(self.xl[cnt - 1], self.yl[cnt - 1],
+                                        self.xl[cnt], self.yl[cnt])
+                if xc_erg == 1:
+                    crossanz += 1
+        if crossanz%2 == 0:
+            return(False)
+        else:
+            return(True)
 
 def polytest(xli, yli):
     if len(xli) == len(yli):
