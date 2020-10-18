@@ -123,10 +123,18 @@ class poly(object):
         Prüfung, ob sich zwei oder mehrere Teilstrecken des Polygons
         kreuzen. Rückgabewert ist die Anzahl der Kreuzungspunkte.
         """
+        anzxp = 0
         for cnt1, ele1 in enumerate(self.xl, 0):
-            for cnt2, ele2 in enumerate(self.xl, 0):
-                if cnt1 != cnt2:
-                    pass
+            if cnt1 > 0:
+                lref = linie(self.x[cnt1], self.y[cnt1],
+                             self.x[cnt1 - 1], self.y[cnt1 - 1])
+                for cnt2, ele2 in enumerate(self.xl, 0):
+                    if (cnt2 > 0) and (cnt1 != cnt2):
+                        xc_erg = lref.lne_x_chk(self.x[cnt2], self.y[cnt2],
+                             self.x[cnt2 - 1], self.y[cnt2 - 1])
+                        if xc_erg == 1:
+                            anzxp += 1
+        return(anzxp)
 
     def flaeche(self):
         """
