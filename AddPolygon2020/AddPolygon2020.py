@@ -126,12 +126,12 @@ class poly(object):
         anzxp = 0
         for cnt1, ele1 in enumerate(self.xl, 0):
             if cnt1 > 0:
-                lref = linie(self.x[cnt1], self.y[cnt1],
-                             self.x[cnt1 - 1], self.y[cnt1 - 1])
+                lref = linie(self.xl[cnt1], self.yl[cnt1],
+                             self.xl[cnt1 - 1], self.yl[cnt1 - 1])
                 for cnt2, ele2 in enumerate(self.xl, 0):
                     if (cnt2 > 0) and (cnt1 != cnt2):
-                        xc_erg = lref.lne_x_chk(self.x[cnt2], self.y[cnt2],
-                             self.x[cnt2 - 1], self.y[cnt2 - 1])
+                        xc_erg = lref.lne_x_chk(self.xl[cnt2], self.yl[cnt2],
+                             self.xl[cnt2 - 1], self.yl[cnt2 - 1])
                         if xc_erg == 1:
                             anzxp += 1
         return(anzxp)
@@ -219,6 +219,15 @@ def polytest(xli, yli):
         print(ausstr)
         print('Kantenlänge gesamt: ' + str(p.klaenge()))
         print('Fläche: ' +str(p.flaeche()))
+        xpanz = p.xcheck()
+        if xpanz == 0:
+            ausstr = 'Keine Kante im Polygon kreuzt sich '
+            ausstr += 'mit einer anderen Kante.'
+            print(ausstr)
+        else:
+            ausstr = 'Im Polygon überkreuzen sich'
+            ausstr += str(xpanz) + ' Kanten.'
+            print(ausstr)
     else:
         print('fehlerhaftes Polygon!')
 
@@ -248,6 +257,9 @@ linetest(0, 0, 1, 0, 0, 1, 0, 0)
 print('\n\nPolygone:\n')
 p1x = [-2, -1, 1, 2, 2, 1, -1, -2]
 p1y = [-1, -2, -2, -1, 1, 2, 2, 1]
+polytest(p1x, p1y)
+p1x = [0, 1, 2, 3, 4, 4, 0]
+p1y = [0, 2, 0, 2, 0, 1, 1]
 polytest(p1x, p1y)
 print('\n\nPrüfung, ob Punkt im Polygon ist:\n')
 print('t.b.d.')
