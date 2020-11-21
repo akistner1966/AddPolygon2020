@@ -160,9 +160,12 @@ class poly(object):
         berechnet, ob 
         ich ein Punkt im Polygon befindet oder außerhalb
         Rückgabewert:
-        True: der Punkt ist innerhalb des Polygons
-        False: der Punkt ist außerhalb des Polygons
+        1: der Punkt ist innerhalb des Polygons
+        0: der Punkt ist außerhalb des Polygons
+        -1: Es konnte nicht berechnet werden, ob der Punkt innerhalb
+        oder außerhalb des Polygons befindet
         """
+        bmf = math.pi()/180
         self.pxanf = px
         self.pyanf = py
         minx = maxx = self.xl[0]
@@ -174,18 +177,37 @@ class poly(object):
         else:
             self.xend = maxx + (maxx - minx) * 1.1
         self.yend = self.pyanf
-        crossanz = 0
-        lref = linie(self.xanf, self.yanf, self.xend, self.yend)
-        for cnt, ele in enumerate(self.xl, 0):
-            if cnt > 0:
-                xc_erg = lref.lne_x_chk(self.xl[cnt - 1], self.yl[cnt - 1],
-                                        self.xl[cnt], self.yl[cnt])
-                if xc_erg == 1:
-                    crossanz += 1
-        if crossanz%2 == 0:
-            return(False)
-        else:
-            return(True)
+        lgerade = abs(self.pxanf - self.xend)
+        wgerade = 0
+        probflag = False
+        unmoeglich = False
+        while probflag == True:
+            probflag = False
+            crossanz = 0
+            lref = linie(self.xanf, self.yanf, self.xend, self.yend)
+            for cnt, ele in enumerate(self.xl, 0):
+                if cnt > 0:
+                    xc_erg = lref.lne_x_chk(self.xl[cnt - 1],
+                                            self.yl[cnt - 1],
+                                            self.xl[cnt], self.yl[cnt])
+                    if xc_erg == 1:
+                        crossanz += 1
+                    if xc_erg == -1:
+                        probflag = True
+                        wgerade += 1
+                        if wgerade > 359:
+                            unmoeglich = True
+                        self.xend = self.pxanf + \
+                            lgerade*math.cos(bmf*wgerade)
+                        self.yend = self.pyanf + \
+                            lgerade*math.sin(bmf*wgerade)
+        if unmoeglich: #Keine Berechnung möglich
+            return(-1)
+        else: #Berechnung konnte durchgeführt werden
+            if crossanz%2 == 0:
+                return(1) #innerhalb
+            else:
+                return(0) #außerhalb
 
 def polytest(xli, yli):
     if len(xli) == len(yli):
@@ -218,6 +240,11 @@ def linetest(x11, y11, x12, y12, x21, y21, x22, y22):
         ausstr += 'Unendliche viele Kreuzungspunkte, identische Geraden'
     print(ausstr + '\n')
 
+print('Kreuzungspnukte von Geradenstücken:\n')
 linetest(0, 0, 1, 1, 2, 2, 3, 1)
 linetest(0, 0, 1, 1, 0, 1, 1, 0)
 linetest(0, 0, 1, 0, 0, 1, 0, 0)
+print('\n\nPolygone:\n')
+print('t.b.d.')
+print('\n\nPrüfung, ob Punkt im Polygon ist:\n')
+print('t.b.d.')
