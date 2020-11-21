@@ -148,16 +148,11 @@ class poly(object):
             if cnt > 0:
                 delta = (self.xl[cnt] - self.xl[cnt - 1])*\
                     ((self.yl[cnt] + self.yl[cnt - 1])/2 - ymin)
-                if self.xl[cnt - 1] > self.xl[cnt]: #positiver Flächenzuwachs
-                    flaeche += delta
-                else: #negativer Flächenzuwachs
-                    flaeche -= delta
+                flaeche += delta
         delta = (self.xl[-1] - self.xl[0])*\
             ((self.yl[-1] + self.yl[0])/2 - ymin)
-        if self.xl[-1] > self.xl[0]: #positiver Flächenzuwachs
-            flaeche += delta
-        else: #negativer Flächenzuwachs
-            flaeche -= delta
+        flaeche += delta
+        print(delta)
         return(abs(flaeche))
 
 
