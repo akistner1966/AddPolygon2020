@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 #@author: comet
 
@@ -152,7 +151,6 @@ class poly(object):
         delta = (self.xl[-1] - self.xl[0])*\
             ((self.yl[-1] + self.yl[0])/2 - ymin)
         flaeche += delta
-        print(delta)
         return(abs(flaeche))
 
 
@@ -166,14 +164,14 @@ class poly(object):
         -1: Es konnte nicht berechnet werden, ob der Punkt innerhalb
         oder außerhalb des Polygons befindet
         """
-        bmf = math.pi()/180
+        bmf = math.pi/180
         self.pxanf = px
         self.pyanf = py
         minx = maxx = self.xl[0]
         for ele in self.xl:
             minx = min(maxx, ele)
             maxx = max(maxx, ele)
-        if self.px > maxx:
+        if self.pxanf > maxx:
             self.xend = minx - (maxx - minx) * 1.1
         else:
             self.xend = maxx + (maxx - minx) * 1.1
@@ -182,10 +180,11 @@ class poly(object):
         wgerade = 0
         probflag = False
         unmoeglich = False
+        crossanz = 0
         while probflag == True:
             probflag = False
             crossanz = 0
-            lref = linie(self.xanf, self.yanf, self.xend, self.yend)
+            lref = linie(self.pxanf, self.pyanf, self.xend, self.yend)
             for cnt, ele in enumerate(self.xl, 0):
                 if cnt > 0:
                     xc_erg = lref.lne_x_chk(self.xl[cnt - 1],
@@ -210,7 +209,7 @@ class poly(object):
             else:
                 return(0) #außerhalb
 
-def polytest(xli, yli):
+def polytest(xli, yli, xp=None, yp=None):
     if len(xli) == len(yli):
         p = poly(xli, yli)
         ausstr = 'Polygon: '
@@ -230,6 +229,17 @@ def polytest(xli, yli):
             print(ausstr)
     else:
         print('fehlerhaftes Polygon!')
+    if (xp != None) and (yp != None):
+        ausstr = 'Referenzpunkt: (' + str(xp) + '|' + str(yp) + ')\n'
+        chkzahl = p.inside(xp, yp)
+        if chkzahl == 1:
+            ausstr += 'Der Referenzpunkt liegt im Polygon.'
+        elif chkzahl == 0:
+            ausstr += 'Der Referenzpunkt liegt nicht im Polygon.'
+        else:
+            ausstr += 'Es kann nicht ermittelt werden, ob der '
+            ausstr += 'Referenzpunkt im Polygon liegt.'
+        print(ausstr)
 
 
 def linetest(x11, y11, x12, y12, x21, y21, x22, y22):
@@ -262,4 +272,6 @@ p1x = [0, 1, 2, 3, 4, 4, 0]
 p1y = [0, 2, 0, 2, 0, 1, 1]
 polytest(p1x, p1y)
 print('\n\nPrüfung, ob Punkt im Polygon ist:\n')
-print('t.b.d.')
+p1x = [0, 1, 1, 0]
+p1y = [0, 0, 1, 1]
+polytest(p1x, p1y, 0.5, 0.5)
