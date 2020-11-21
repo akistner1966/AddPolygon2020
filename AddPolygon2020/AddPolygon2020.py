@@ -140,7 +140,7 @@ class poly(object):
         """
         berechnet den Flächeninhalt des Polygons
         """
-        ymin = self.yl[0]
+        ymin = self.yl[0] #minimalen y-Wert bestimmen
         for ele in self.yl:
             ymin = min(ymin, ele)
         flaeche = 0
@@ -152,6 +152,12 @@ class poly(object):
                     flaeche += delta
                 else: #negativer Flächenzuwachs
                     flaeche -= delta
+        delta = (self.xl[-1] - self.xl[0])*\
+            ((self.yl[-1] + self.yl[0])/2 - ymin)
+        if self.xl[-1] > self.xl[0]: #positiver Flächenzuwachs
+            flaeche += delta
+        else: #negativer Flächenzuwachs
+            flaeche -= delta
         return(abs(flaeche))
 
 
@@ -213,7 +219,7 @@ def polytest(xli, yli):
     if len(xli) == len(yli):
         p = poly(xli, yli)
         ausstr = 'Polygon: '
-        for cnt, ele in enumerate(xlst, 0):
+        for cnt, ele in enumerate(xli, 0):
             ausstr += '(' + str(xli[cnt]) + ',' + str(yli[cnt]) + ')'
         print(ausstr)
         print('Kantenlänge gesamt: ' + str(p.klaenge()))
@@ -245,6 +251,8 @@ linetest(0, 0, 1, 1, 2, 2, 3, 1)
 linetest(0, 0, 1, 1, 0, 1, 1, 0)
 linetest(0, 0, 1, 0, 0, 1, 0, 0)
 print('\n\nPolygone:\n')
-print('t.b.d.')
+p1x = [-2, -1, 1, 2, 2, 1, -1, -2]
+p1y = [-1, -2, -2, -1, 1, 2, 2, 1]
+polytest(p1x, p1y)
 print('\n\nPrüfung, ob Punkt im Polygon ist:\n')
 print('t.b.d.')
